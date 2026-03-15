@@ -3,6 +3,32 @@ info:
   title: API de Usuários XPTO
   version: 1.0.0
 paths:
+  /usuarios/lista:
+    get:
+      summary: Retorna uma lista de usuários
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "123"
+                    nome:
+                      type: string
+                    email:
+                      type: string
+                    data_cadastro:
+                      type: string
+                      format: date-time
+                    ativo:
+                      type: boolean
+
   /usuarios/{id}:
     get:
       summary: Retorna os detalhes de um usuário
