@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-# Carrega as variáveis de ambiente (se você usar um arquivo .env)
 load_dotenv()
 
 def carregar_especificacao(caminho_arquivo):
@@ -18,7 +17,6 @@ def gerar_mock_gemini(client, path, method, spec_endpoint):
     """Envia a especificação do endpoint para o Gemini gerar um JSON de mock."""
     print(f"🤖 Solicitando mock para {method.upper()} {path} ao Gemini...")
     
-    # Montamos o nosso prompt (O 'Contexto' para a IA)
     prompt = f"""
     Você é um desenvolvedor backend sênior especialista em criação de mocks para testes.
     Abaixo está a especificação OpenAPI de um endpoint específico.
@@ -33,7 +31,6 @@ def gerar_mock_gemini(client, path, method, spec_endpoint):
     Preencha os campos com dados fictícios plausíveis (nomes reais, emails válidos, datas recentes, etc).
     """
 
-    # Chamada à API forçando a saída para ser estritamente um JSON válido
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,
@@ -52,7 +49,6 @@ def main():
     parser.add_argument("--method", default="get", help="O método HTTP (get, post, put, etc)")
     args = parser.parse_args()
 
-    # 1. Configurar cliente do Gemini
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("❌ ERRO: A variável de ambiente GEMINI_API_KEY não está configurada.")
@@ -60,7 +56,6 @@ def main():
 
     client = genai.Client(api_key=api_key)
 
-    # 2. Ler a especificação
     try:
         spec = carregar_especificacao(args.spec)
     except FileNotFoundError:
@@ -73,14 +68,12 @@ def main():
         print(f"❌ ERRO: Rota '{args.method.upper()} {args.path}' não encontrada no arquivo {args.spec}.")
         return
 
-    # 4. Gerar o Mock via IA
     mock_json_str = gerar_mock_gemini(client, args.path, args.method, endpoint_data)
 
-    # 5. Salvar o resultado em um arquivo
+
     nome_arquivo_saida = f"mock_{args.method.lower()}_{args.path.replace('/', '_').replace('{', '').replace('}', '')}.json"
     
     with open(nome_arquivo_saida, 'w', encoding='utf-8') as f:
-        # Carrega e salva novamente para garantir a formatação bonita (indentada)
         mock_dit = json.loads(mock_json_str)
         json.dump(mock_dit, f, indent=4, ensure_ascii=False)
 
